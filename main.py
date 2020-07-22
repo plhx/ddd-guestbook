@@ -3,10 +3,9 @@ import time
 
 import flask
 
-import models.locators
-import models.repositories
-import models.responses
-import models.services
+import locators
+import infrastructures.contexts
+import infrastructures.repositories
 
 
 app = flask.Flask(__name__)
@@ -14,11 +13,9 @@ app = flask.Flask(__name__)
 
 @app.before_first_request
 def before_first_request():
-    #context = models.repositories.GuestbookRepositoryMemoryContext()
-    #RepoClass = models.locators.GuestbookRepositoryLocator.resolve('memory')
-    context = models.repositories.GuestbookRepositoryDatabaseContext('guestbook.db')
-    RepoClass = models.locators.GuestbookRepositoryLocator.resolve('sqlite')
-    ServClass = models.locators.GuestbookServiceLocator.resolve('default')
+    context = infrastructures.contexts.GuestbookRepositoryMemoryContext()
+    RepoClass = locators.GuestbookRepositoryLocator.resolve('memory')
+    ServClass = locators.GuestbookServiceLocator.resolve('default')
     app.service = ServClass(RepoClass(context))
 
 
@@ -32,10 +29,10 @@ def guestbook_get():
     try:
         count = int(flask.request.values.get('count', 10))
     except (ValueError, TypeError):
-        return models.responses.GuestbookNullResponse(400).flask()
-    command = models.services.GuestbookGetCommand(count)
+        return infrastructures.responses.GuestbookNullResponse(400).flask()
+    command = infrastructures.services.GuestbookGetCommand(count)
     posts = app.service.get(command)
-    return models.responses.GuestbookGetResponse(posts, 200).flask()
+    return infrastructures.responses.GuestbookGetResponse(posts, 200).flask()
 
 
 @app.route('/guestbook', methods=['POST'])
@@ -46,12 +43,12 @@ def guestbook_post():
         timestamp = time.time()
         remoteaddr = os.environ.get('REMOTE_ADDR')
     except KeyError:
-        return models.responses.GuestbookNullResponse(400).flask()
-    command = models.services.GuestbookPostCommand(
+        return infrastructures.responses.GuestbookNullResponse(400).flask()
+    command = infrastructures.services.GuestbookPostCommand(
         name, message, timestamp, remoteaddr
     )
     post = app.service.post(command)
-    return models.responses.GuestbookPostResponse(post, 200).flask()
+    return infrastructures.responses.GuestbookPostResponse(post, 200).flask()
 
 
 if __name__ == '__main__':
