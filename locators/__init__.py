@@ -1,26 +1,28 @@
 import typing
 
-import models.repositories
-import models.services
+from models.repositories import *
+from models.services import *
+from infrastructures.repositories import *
+from infrastructures.services import *
 
 
 class GuestbookRepositoryLocator:
     @classmethod
-    def resolve(cls, type: str) -> models.repositories.IGuestbookRepository:
+    def resolve(cls, type: str) -> IGuestbookRepository:
         if not isinstance(type, str):
             raise TypeError()
         if type == 'memory':
-            return models.repositories.GuestbookMemoryRepository
+            return GuestbookMemoryRepository
         elif type == 'sqlite':
-            return models.repositories.GuestbookSQLiteRepository
+            return GuestbookSQLiteRepository
         raise ValueError()
 
 
 class GuestbookServiceLocator:
     @classmethod
-    def resolve(cls, type: str) -> models.services.IGuestbookService:
+    def resolve(cls, type: str) -> IGuestbookService:
         if not isinstance(type, str):
             raise TypeError()
         if type == 'default':
-            return models.services.DefaultGuestbookService
+            return DefaultGuestbookService
         raise ValueError()

@@ -6,6 +6,7 @@ import flask
 import locators
 import infrastructures.contexts
 import infrastructures.repositories
+import infrastructures.responses
 
 
 app = flask.Flask(__name__)

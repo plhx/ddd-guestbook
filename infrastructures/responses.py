@@ -1,3 +1,6 @@
+import typing
+
+from models.entities import *
 from models.responses import *
 
 
@@ -16,7 +19,7 @@ class GuestbookNullResponse(IGuestbookResponse):
 
 
 class GuestbookGetResponse(IGuestbookResponse):
-    def __init__(self, posts: typing.List[models.entities.SavedPost],
+    def __init__(self, posts: typing.List[SavedPost],
         _status: int):
         self.posts = posts
         self._status = _status
@@ -39,7 +42,7 @@ class GuestbookGetResponse(IGuestbookResponse):
 
 
 class GuestbookPostResponse(IGuestbookResponse):
-    def __init__(self, post: models.entities.SavedPost, _status: int):
+    def __init__(self, post: SavedPost, _status: int):
         self.post = post
         self._status = _status
 
