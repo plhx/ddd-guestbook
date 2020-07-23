@@ -10,5 +10,5 @@ class IGuestbookRepository(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def add(self, post: Post) -> SavedPost:
+    def add(self, post: Post) -> None:
         raise NotImplementedError()

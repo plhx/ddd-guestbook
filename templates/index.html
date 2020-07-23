@@ -35,8 +35,8 @@ $(function() {
                     url: '/guestbook',
                     method: 'post',
                     data: {name: name, message: message},
-                    success: function() {
-                        self.get()
+                    success: function(data, textStatus, jqXHR) {
+                        self.posts = data.posts.reverse()
                     }
                 })
             },

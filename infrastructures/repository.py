@@ -15,14 +15,13 @@ class GuestbookMemoryRepository(IGuestbookRepository):
             raise ValueError()
         return self.posts[-count:]
 
-    def add(self, post: Post) -> SavedPost:
+    def add(self, post: Post) -> None:
         if self.posts:
             post_id = self.posts[-1].post_id + 1
         else:
             post_id = PostId(0)
         saved_post = SavedPost.frompost(post, post_id)
         self.posts.append(saved_post)
-        return saved_post
 
 
 class GuestbookSQLiteRepository(IGuestbookRepository):
@@ -61,7 +60,7 @@ class GuestbookSQLiteRepository(IGuestbookRepository):
                 result.append(saved_post)
             return result
 
-    def add(self, post: Post) -> SavedPost:
+    def add(self, post: Post) -> None:
         with sqlite3.connect(self.context.path) as con:
             cur = con.cursor()
             try:
@@ -86,11 +85,3 @@ class GuestbookSQLiteRepository(IGuestbookRepository):
                 raise
             else:
                 con.commit()
-                post_id, name, message, timestamp, remote_addr = cur.fetchone()
-                return SavedPost(
-                    PostId(post_id),
-                    Name(name),
-                    Message(message),
-                    Timestamp(timestamp),
-                    RemoteAddress(remote_addr)
-                )

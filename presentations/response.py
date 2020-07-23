@@ -6,50 +6,63 @@ import flask
 from core.models.post import *
 
 
-class IGuestbookResponse(metaclass=abc.ABCMeta):
+class IHTTPResponse(metaclass=abc.ABCMeta):
     def __init__(self):
+        self.data = None
         self.status = None
+        self.headers = None
 
 
-class GuestbookEmptyResponse(IGuestbookResponse):
-    def __init__(self, status: int):
+class HTTPResponse(IHTTPResponse):
+    def __init__(self, data: typing.Union[bytes, str, dict], status: int,
+        headers: typing.Dict[str, str]):
+        if not isinstance(data, (bytes, str, dict)):
+            raise TypeError()
         if not isinstance(status, int):
             raise TypeError()
+        if not isinstance(headers, dict):
+            raise TypeError()
         super().__init__()
+        self.data = data
         self.status = status
+        self.headers = headers
 
 
-class GuestbookGetResponse(IGuestbookResponse):
+class RenderHTMLResponse(IHTTPResponse):
+    def __init__(self, path: str):
+        if not isinstance(path, str):
+            raise TypeError()
+        self.data = path
+
+
+class GuestbookResponse(IHTTPResponse):
     def __init__(self, posts: typing.List[SavedPost], status: int):
         if not isinstance(posts, (list, tuple)):
             raise TypeError()
         super().__init__()
-        self.posts = posts
+        self.data = posts
         self.status = status
 
 
-class GuestbookAddResponse(IGuestbookResponse):
-    def __init__(self, post: SavedPost, status: int):
-        if not isinstance(post, SavedPost):
-            raise TypeError()
-        super().__init__()
-        self.post = post
-        self.status = status
-
-
-class IGuestbookResponseConverter(metaclass=abc.ABCMeta):
+class IHTTPResponseConverter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def convert(self, response: IGuestbookResponse) -> typing.Any:
+    def convert(self, response: IHTTPResponse):
         raise NotImplementedError()
 
 
-class GuestbookFlaskResponseConverter(IGuestbookResponseConverter):
-    def convert(self, response: IGuestbookResponse) -> flask.Response:
-        if isinstance(response, GuestbookEmptyResponse):
-            return flask.make_response({}, response.status)
-        elif isinstance(response, GuestbookGetResponse):
+class FlaskResponseConverter(IHTTPResponseConverter):
+    def convert(self, response: IHTTPResponse):
+        if isinstance(response, HTTPResponse):
+            return flask.make_response(
+                response.data,
+                response.status,
+                headers=headers
+            )
+        elif isinstance(response, RenderHTMLResponse):
+            return flask.render_template(response.data)
+        elif isinstance(response, GuestbookResponse):
             posts = []
-            for post in response.posts:
+            for post in response.data:
                 posts.append({
                     'id': post.post_id.value,
                     'name': post.name.value,
@@ -57,15 +70,4 @@ class GuestbookFlaskResponseConverter(IGuestbookResponseConverter):
                     'timestamp': post.timestamp.value
                 })
             return flask.make_response({'posts': posts}, response.status)
-        elif isinstance(response, GuestbookAddResponse):
-            return flask.make_response(
-                {'posts': [{
-                    'id': response.post.post_id.value,
-                    'name': response.post.name.value,
-                    'message': response.post.message.value,
-                    'timestamp': response.post.timestamp.value,
-                    'remote_addr': response.post.remote_addr.value
-                }]},
-                response.status
-            )
         raise TypeError()
