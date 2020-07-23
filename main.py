@@ -5,7 +5,11 @@ from core.models import *
 from infrastructures import *
 from presentations import *
 
-app = flask.Flask(__name__)
+app = flask.Flask(
+    __name__,
+    static_folder='view/static',
+    template_folder='view/templates'
+)
 
 
 @app.before_first_request
@@ -14,7 +18,6 @@ def before_first_request():
     app.repository = GuestbookMemoryRepository(context)
     #context = GuestbookRepositoryDatabaseContext('guestbook.db')
     #app.repository = GuestbookSQLiteRepository(context)
-
     app.request = GuestbookFlaskRequest()
     app.converter = FlaskResponseConverter()
 
