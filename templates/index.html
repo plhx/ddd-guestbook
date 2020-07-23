@@ -62,7 +62,7 @@ $(function() {
                 $('#guestbook-message').val('')
             }
         }
-    });
+    })
 })
         </script>
         <style>
@@ -86,6 +86,8 @@ div.guestbook-posts-name {
 div.guestbook-posts-name::after {
     color: #999999;
     content: ' \ff1e ';
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 div.guestbook-posts-datetime {
@@ -119,10 +121,10 @@ div.guestbook-posts-datetime {
                 </div>
             </div>
             <div class="guestbook-posts mt-4" v-cloak>
-                <div v-for="p in posts" class="d-flex align-items-center">
-                    <div class="guestbook-posts-name ml-1 mr-1">[[ p.name ]]</div>
+                <div v-for="p in posts" class="d-flex">
+                    <div class="guestbook-posts-name ml-1 mr-1 text-nowrap d-flex align-items-start">[[ p.name ]]</div>
                     <div class="guestbook-posts-message ml-1 mr-1">[[ p.message ]]</div>
-                    <div class="guestbook-posts-datetime ml-1 mr-1">([[ toDatetime(p.timestamp) ]])</div>
+                    <div class="guestbook-posts-datetime ml-1 mr-1 mb-1 text-nowrap d-flex align-items-end">([[ toDatetime(p.timestamp) ]])</div>
                 </div>
             </div>
         </div>
