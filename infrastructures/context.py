@@ -1,4 +1,9 @@
-from models.contexts import *
+import abc
+import typing
+
+
+class IGuestbookRepositoryContext(metaclass=abc.ABCMeta):
+    pass
 
 
 class GuestbookRepositoryMemoryContext(IGuestbookRepositoryContext):

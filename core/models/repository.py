@@ -1,15 +1,14 @@
 import abc
-import sqlite3
 import typing
 
-import models.entities
+from core.models.post import *
 
 
 class IGuestbookRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def get(self, count: int) -> [models.entities.Post]:
+    def get(self, count: int) -> typing.List[SavedPost]:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def post(self, post: models.entities.Post) -> models.entities.SavedPost:
+    def add(self, post: Post) -> SavedPost:
         raise NotImplementedError()

@@ -1,23 +1,23 @@
-import os
-import time
-
 import flask
 
-import locators
-import infrastructures.contexts
-import infrastructures.repositories
-import infrastructures.responses
-
+from core.apps import *
+from core.models import *
+from infrastructures import *
+from presentations import *
 
 app = flask.Flask(__name__)
 
 
 @app.before_first_request
 def before_first_request():
-    context = infrastructures.contexts.GuestbookRepositoryMemoryContext()
-    RepoClass = locators.GuestbookRepositoryLocator.resolve('memory')
-    ServClass = locators.GuestbookServiceLocator.resolve('default')
-    app.service = ServClass(RepoClass(context))
+    context = GuestbookRepositoryMemoryContext()
+    app.repository = GuestbookMemoryRepository(context)
+
+    #context = GuestbookRepositoryDatabaseContext('guestbook.db')
+    #app.repository = GuestbookSQLiteRepository(context)
+
+    app.request = GuestbookFlaskRequest()
+    app.converter = GuestbookFlaskResponseConverter()
 
 
 @app.route('/', methods=['GET'])
@@ -28,28 +28,35 @@ def index():
 @app.route('/guestbook', methods=['GET'])
 def guestbook_get():
     try:
-        count = int(flask.request.values.get('count', 10))
-    except (ValueError, TypeError):
-        return infrastructures.responses.GuestbookNullResponse(400).flask()
-    command = infrastructures.services.GuestbookGetCommand(count)
-    posts = app.service.get(command)
-    return infrastructures.responses.GuestbookGetResponse(posts, 200).flask()
+        count = app.request.params('count', 10)
+    except (KeyError, ValueError, TypeError):
+        return app.converter.convert(GuestbookEmptyResponse(400))
+    command = GuestbookGetCommand(count)
+    response = GuestbookGetResponse(
+        GuestbookGetUseCase(app.repository).execute(command),
+        200
+    )
+    return app.converter.convert(response)
 
 
 @app.route('/guestbook', methods=['POST'])
 def guestbook_post():
     try:
-        name = flask.request.values['name']
-        message = flask.request.values['message']
-        timestamp = time.time()
-        remoteaddr = os.environ.get('REMOTE_ADDR')
-    except KeyError:
-        return infrastructures.responses.GuestbookNullResponse(400).flask()
-    command = infrastructures.services.GuestbookPostCommand(
-        name, message, timestamp, remoteaddr
+        name = app.request.data('name')
+        message = app.request.data('message')
+    except (KeyError, ValueError, TypeError):
+        return app.converter.convert(GuestbookEmptyResponse(400))
+    command = GuestbookAddCommand(
+        Name(name),
+        Message(message),
+        Timestamp.now(),
+        app.request.remote_addr()
     )
-    post = app.service.post(command)
-    return infrastructures.responses.GuestbookPostResponse(post, 200).flask()
+    response = GuestbookAddResponse(
+        GuestbookAddUseCase(app.repository).execute(command),
+        200
+    )
+    return app.converter.convert(response)
 
 
 if __name__ == '__main__':
