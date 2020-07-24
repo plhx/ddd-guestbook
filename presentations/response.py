@@ -4,6 +4,7 @@ import typing
 import flask
 
 from core.models.post import *
+from presentations.color import *
 
 
 class IHTTPResponse(metaclass=abc.ABCMeta):
@@ -62,12 +63,14 @@ class FlaskResponseConverter(IHTTPResponseConverter):
             return flask.render_template(response.data)
         elif isinstance(response, GuestbookResponse):
             posts = []
+            converter = RemoteAddressColorConverter()
             for post in response.data:
                 posts.append({
                     'id': post.post_id.value,
                     'name': post.name.value,
                     'message': post.message.value,
-                    'timestamp': post.timestamp.value
+                    'timestamp': post.timestamp.value,
+                    'color': converter.convert(post.remote_addr).hex
                 })
             return flask.make_response({'posts': posts}, response.status)
         raise TypeError()

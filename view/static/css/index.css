@@ -1,0 +1,28 @@
+body {
+    font-family: 'Helvetica Neue', 'Helvetica', 'Meiryo UI', 'Meiryo',
+        'HiraKakuProN-W3', 'VL Gothic', sans-serif;
+}
+
+[v-cloak] {
+    display: none !important;
+}
+
+div.guestbook-posts {
+    font-size: 18pt;
+}
+
+div.guestbook-posts-name {
+    font-weight: bold;
+}
+
+div.guestbook-posts-name::after {
+    color: #999999;
+    content: ' \ff1e ';
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+div.guestbook-posts-datetime {
+    color: #999999;
+    font-size: 12pt;
+}

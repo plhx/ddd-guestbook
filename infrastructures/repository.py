@@ -44,18 +44,19 @@ class GuestbookSQLiteRepository(IGuestbookRepository):
         with sqlite3.connect(self.context.path) as con:
             cur = con.cursor()
             cur.execute(
-                '''SELECT [post_id], [name], [message], [timestamp], [remote_addr]
-                    FROM guestbook ORDER BY [post_id] DESC LIMIT ?''',
+                '''SELECT [post_id], [name], [message], [timestamp],
+                    [remote_addr] FROM guestbook
+                    ORDER BY [post_id] DESC LIMIT ?''',
                 (count,)
             )
             result = []
-            for post_id, name, message, timestamp, remote_addr in cur.fetchall():
+            for post_id, name, message, timestamp, address in cur.fetchall():
                 saved_post = SavedPost(
                     PostId(post_id),
                     Name(name),
                     Message(message),
                     Timestamp(timestamp),
-                    RemoteAddress(remote_addr)
+                    RemoteAddress(address)
                 )
                 result.append(saved_post)
             return result
