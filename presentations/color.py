@@ -14,9 +14,15 @@ class Color:
             raise TypeError()
         if not isinstance(blue, int):
             raise TypeError()
-        self.red = int(red)
-        self.green = int(green)
-        self.blue = int(blue)
+        if not 0 <= red <= 255:
+            raise ValueError()
+        if not 0 <= green <= 255:
+            raise ValueError()
+        if not 0 <= blue <= 255:
+            raise ValueError()
+        self.red = red
+        self.green = green
+        self.blue = blue
 
     @property
     def hex(self):
